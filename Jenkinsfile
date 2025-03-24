@@ -1,10 +1,6 @@
 pipeline {
-	agent {
-		node {
-			label 'docker-sping-boot'
+	agent any
 
-	}
-}
     environment {
 		DOCKER_CREDENTIALS_ID = 'dockerhub'
 		DOCKER_IMAGE = 'myapp:latest'
