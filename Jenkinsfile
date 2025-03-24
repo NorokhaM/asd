@@ -1,5 +1,9 @@
 pipeline {
-	agent any
+	agent {
+		node {
+			label 'docker-spring-boot'
+		}
+	}
 
     environment {
 		DOCKER_CREDENTIALS_ID = 'dockerhub'

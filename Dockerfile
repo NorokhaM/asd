@@ -1,9 +1,14 @@
-FROM maven:3.8.6-openjdk-17 AS build
-COPY ./ /usr/src/app
-WORKDIR /usr/src/app
-RUN mvn clean package DskipTests
+FROM maven:3.8.4-openjdk-17-slim AS build
+WORKDIR /app
+COPY pom.xml .
+RUN mvn dependency:go-offline -B
+
+COPY src ./src
+RUN mvn -B -DskipTests clean package
 
 FROM openjdk:17-jdk-alpine
-COPY --from=build /usr/src/app/target/*.jar /usr/app/app.jar
-WORKDIR /usr/app
-CMD ["java", "-jar", "app.jar"]
+WORKDIR /app
+
+COPY --from=build /app/target/app-0.0.1-SNAPSHOT.jar /app/app.jar
+
+ENTRYPOINT ["java", "-jar", "app.jar"]
