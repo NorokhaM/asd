@@ -6,7 +6,7 @@ pipeline {
         IMAGE_TAG = 'latest'
     }
     stages {
-		stage('Build and Push Docker Image') {
+		stage('Build and Run Docker Image') {
 			steps {
 				script {
 
@@ -18,7 +18,7 @@ passwordVariable: 'DOCKERHUB_PASSWORD')]) {
 
                         sh "docker tag ${DOCKERHUB_USERNAME}/${IMAGE_NAME}:${IMAGE_TAG} index.docker.io/${DOCKERHUB_USERNAME}/${IMAGE_NAME}:${IMAGE_TAG}"
 
-                        sh "docker push index.docker.io/${DOCKERHUB_USERNAME}/${IMAGE_NAME}:${IMAGE_TAG}"
+                        sh "docker run -d -p 8080:8080 ${DOCKERHUB_USERNAME}/${IMAGE_NAME}:${IMAGE_TAG}"
                     }
                 }
             }
