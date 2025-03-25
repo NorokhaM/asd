@@ -1,36 +1,32 @@
 pipeline {
 	agent any
-
     environment {
-		DOCKER_CREDENTIALS_ID = 'dockerhub'
-		DOCKER_IMAGE = 'myapp:latest'
-	}
+        DOCKERHUB_CREDENTIALS = 'norokham'
+        IMAGE_NAME = 'myapp'
+        IMAGE_TAG = 'latest'
+    }
+    stages {
+		stage('Build and Push Docker Image') {
+			steps {
+				script {
 
-	triggers {
-		pollSCM('* * * * *')
-	}
+                    withCredentials([usernamePassword(credentialsId: DOCKERHUB_CREDENTIALS, usernameVariable: 'DOCKERHUB_USERNAME',
+passwordVariable: 'DOCKERHUB_PASSWORD')]) {
+                        sh "docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD}"
 
-	stages {
-		stage('Git clone') {
-			steps {
-				script {
-					git 'https://github.com/NorokhaM/asd.git'
-				}
-			}
-		}
-		stage('Build an Docker image') {
-			steps {
-				script {
-					sh 'docker build -t $DOCKER_IMAGE .'
-				}
-			}
-		}
-		stage('Run Docker container') {
-			steps {
-				script {
-					sh 'docker run -d -p 8081:8081 $DOCKER_IMAGE'
-				}
-			}
-		}
-	}
+                        sh "docker build -t ${DOCKERHUB_USERNAME}/${IMAGE_NAME}:${IMAGE_TAG} ."
+
+                        sh "docker tag ${DOCKERHUB_USERNAME}/${IMAGE_NAME}:${IMAGE_TAG} index.docker.io/${DOCKERHUB_USERNAME}/${IMAGE_NAME}:${IMAGE_TAG}"
+
+                        sh "docker push index.docker.io/${DOCKERHUB_USERNAME}/${IMAGE_NAME}:${IMAGE_TAG}"
+                    }
+                }
+            }
+        }
+    }
+    post {
+		always {
+			echo 'Pipeline finished'
+        }
+    }
 }
